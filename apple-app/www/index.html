@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="style.css">
+<title>APPLE LESTER'S</title>
+</head>
+<body>
+<div class="title">APPLE <span>LESTER'S</span></div>
+<div class="game-wrap">
+  <canvas id="game"></canvas>
+  <button id="homeBtn" class="hidden">🏠</button>
+  <div id="overlay" class="overlay">
+    <h1 id="overlayTitle">APPLE LESTER'S</h1>
+    <p id="overlaySub">Собирай яблоки, проходи лабиринты</p>
+    <button id="overlayBtn">Играть</button>
+  </div>
+</div>
+<div class="controls hidden" id="controls">
+  <button class="empty"></button><button data-dir="up">▲</button><button class="empty"></button>
+  <button data-dir="left">◀</button><button class="empty"></button><button data-dir="right">▶</button>
+  <button class="empty"></button><button data-dir="down">▼</button><button class="empty"></button>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
