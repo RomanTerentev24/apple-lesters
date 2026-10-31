@@ -1,0 +1,153 @@
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: Arial, sans-serif; touch-action: none; }
+        #game-canvas { display: block; position: fixed; top: 0; left: 0; }
+
+        /* --- ПРИЦЕЛ --- */
+        #crosshair {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 4px; height: 4px; border-radius: 50%;
+            background: #00ff00; box-shadow: 0 0 4px #00ff00;
+            pointer-events: none; z-index: 50;
+        }
+
+        /* --- ОБЩИЙ КЛАСС ДЛЯ КАСТОМИЗИРУЕМЫХ ЭЛЕМЕНТОВ --- */
+        .ui-element {
+            transition: transform 0.1s ease;
+        }
+        
+        /* В режиме кастомизации элементы становятся кликабельными и получают рамку */
+        body.customizing .ui-element {
+            pointer-events: auto !important;
+            outline: 2px dashed rgba(0, 255, 0, 0.6);
+            outline-offset: 4px;
+            touch-action: none;
+        }
+        body.customizing .ui-element::before {
+            content: '✥';
+            position: absolute;
+            top: -20px; left: 50%; transform: translateX(-50%);
+            color: #0f0; font-size: 16px;
+        }
+
+        /* --- ПАТРОНЫ --- */
+        #ammo {
+            position: fixed; bottom: 15px; left: 45%; transform: translateX(-50%);
+            z-index: 40;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 4px 14px;
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex; align-items: baseline; gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+        #ammo-current { font-size: 22px; font-weight: bold; color: #fff; min-width: 30px; text-align: right; transition: color 0.15s; }
+        #ammo-sep { font-size: 16px; color: #888; }
+        #ammo-reserve { font-size: 14px; color: #aaa; }
+        #ammo.reloading #ammo-current { font-size: 14px; color: #ffaa00; letter-spacing: 1px; }
+
+        /* --- МЕНЮ --- */
+        .menu {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #fff; padding: 20px;
+        }
+        .menu h1 { font-size: 38px; margin-bottom: 30px; letter-spacing: 4px; }
+        .menu h2 { font-size: 28px; margin-bottom: 20px; }
+        .menu button {
+            padding: 15px 30px; margin: 10px; font-size: 18px; cursor: pointer;
+            background: #fff; color: #000; border: none; border-radius: 6px;
+            min-width: 220px; font-weight: bold;
+        }
+        .menu button:active { background: #ccc; }
+        .menu select, .menu input[type="range"] { padding: 8px; font-size: 16px; border-radius: 4px; margin-left: 8px; width: 150px; }
+        .menu label { font-size: 16px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 350px; margin-bottom: 15px; }
+        .hidden { display: none !important; }
+
+        /* --- ИГРОВОЙ UI --- */
+        #pause-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 40;
+            padding: 10px 16px; font-size: 16px; font-weight: bold;
+            background: rgba(0, 0, 0, 0.5); color: #fff; border: 1px solid #fff;
+            border-radius: 6px; cursor: pointer;
+        }
+        #score {
+            position: fixed; top: 20px; left: 20px; z-index: 40;
+            padding: 8px 14px; font-size: 16px; font-weight: bold;
+            background: rgba(0, 0, 0, 0.5); color: #00ff88;
+            border-radius: 6px; border: 1px solid rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+
+        #joystick-zone {
+            position: fixed; bottom: 20px; left: 20px; z-index: 40;
+            width: 130px; height: 130px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            touch-action: none;
+        }
+        #joystick-knob {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 55px; height: 55px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        #fire-button {
+            position: fixed; bottom: 40px; right: 40px; z-index: 40;
+            width: 85px; height: 85px; border-radius: 50%;
+            background: rgba(255, 0, 0, 0.6);
+            color: #fff; font-weight: bold; font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; touch-action: none;
+            border: none;
+        }
+        #fire-button:active { background: rgba(255, 0, 0, 0.9); }
+
+        #look-zone {
+            position: fixed; top: 0; left: 40%; width: 60%; height: 100%; z-index: 30;
+            touch-action: none;
+        }
+
+        /* --- ПАНЕЛЬ КАСТОМИЗАЦИИ (ИСПРАВЛЕНА) --- */
+        #customize-panel {
+            position: fixed; bottom: 0; left: 0; width: 100%; z-index: 200;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            color: #fff; border-top: 2px solid #00ff88;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Магия: панель пропускает клики сквозь себя */
+            pointer-events: none; 
+        }
+        /* Но интерактивные элементы внутри панели клики ловят */
+        #customize-panel > * {
+            pointer-events: auto;
+        }
+        /* Свернутое состояние панели */
+        #customize-panel.collapsed {
+            transform: translateY(calc(100% - 50px));
+        }
+        
+        #customize-panel label { display: flex; justify-content: space-between; width: 100%; max-width: 300px; font-size: 14px; }
+        #customize-panel input[type="range"] { width: 150px; }
+        
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px;
+            margin-bottom: 5px;
+        }
+        #toggle-panel-btn {
+            background: #333; color: #fff; border: 1px solid #555; border-radius: 4px;
+            padding: 4px 10px; font-size: 12px; cursor: pointer;
+        }
+        
+        #save-customize-btn {
+            padding: 10px 30px; background: #00ff88; color: #000;
+            border: none; border-radius: 4px; font-weight: bold; font-size: 16px; margin-top: 5px;
+        }
+        
+        /* В режиме перетаскивания элемент поднимается выше панели */
+        .ui-element.dragging {
+            z-index: 999 !important;
+        }
